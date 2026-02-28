@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="ka">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blob Background</title>
+  <style>
+    :root {
+      --bg: #05050a;
+      --t1: #a855f7; /* purple */
+      --t2: #3b82f6; /* blue */
+      --t3: #ec4899; /* pink */
+      --text: #eaeaf2;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      overflow: hidden;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue";
+    }
+
+    /* --- Background blobs --- */
+    .bg {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(1200px 700px at 50% 40%, rgba(255,255,255,0.03), transparent 60%);
+    }
+
+    /* container for goo effect */
+    .goo {
+      position: absolute;
+      inset: -20%;
+      filter: url(#goo) blur(10px);
+      transform: translateZ(0);
+    }
+
+    .blob {
+      position: absolute;
+      width: 320px;
+      height: 320px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.20), rgba(255,255,255,0) 55%),
+                  radial-gradient(circle at 60% 60%, rgba(255,255,255,0.08), rgba(255,255,255,0) 60%),
+                  linear-gradient(135deg, var(--t1), var(--t2));
+      opacity: 0.95;
+      mix-blend-mode: screen;
+      will-change: transform;
+    }
+
+    .blob.b1 { left: 30%; top: 35%; transform: translate(-50%, -50%); animation: drift1 10s ease-in-out infinite; }
+    .blob.b2 { left: 52%; top: 38%; width: 380px; height: 380px; animation: drift2 12s ease-in-out infinite; }
+    .blob.b3 { left: 45%; top: 55%; width: 260px; height: 260px; background: linear-gradient(135deg, var(--t2), var(--t1)); animation: drift3 9s ease-in-out infinite; }
+    .blob.b4 { left: 62%; top: 52%; width: 220px; height: 220px; background: linear-gradient(135deg, var(--t1), var(--t3)); animation: drift4 11s ease-in-out infinite; opacity: 0.85; }
+
+    /* little bubbles */
+    .bubble {
+      position: absolute;
+      width: 110px;
+      height: 110px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--t1), var(--t2));
+      opacity: 0.75;
+      mix-blend-mode: screen;
+      animation: floaty 7s ease-in-out infinite;
+    }
+    .bubble.c1 { left: 58%; top: 30%; width: 90px; height: 90px; animation-duration: 6.5s; }
+    .bubble.c2 { left: 38%; top: 58%; width: 70px; height: 70px; animation-duration: 7.8s; }
+    .bubble.c3 { left: 70%; top: 60%; width: 120px; height: 120px; animation-duration: 8.2s; }
+
+    @keyframes drift1 {
+      0%,100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+      50%     { transform: translate(-42%, -58%) scale(1.08) rotate(8deg); }
+    }
+    @keyframes drift2 {
+      0%,100% { transform: translate(-50%, -50%) scale(1.02) rotate(0deg); }
+      50%     { transform: translate(-58%, -40%) scale(1.10) rotate(-10deg); }
+    }
+    @keyframes drift3 {
+      0%,100% { transform: translate(-50%, -50%) scale(0.98) rotate(0deg); }
+      50%     { transform: translate(-44%, -44%) scale(1.10) rotate(14deg); }
+    }
+    @keyframes drift4 {
+      0%,100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+      50%     { transform: translate(-60%, -56%) scale(1.12) rotate(-12deg); }
+    }
+    @keyframes floaty {
+      0%,100% { transform: translate(-50%, -50%) scale(1); }
+      50%     { transform: translate(-50%, -62%) scale(1.08); }
+    }
+
+    /* subtle vignette */
+    .vignette {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(900px 500px at 50% 45%, rgba(0,0,0,0.0), rgba(0,0,0,0.65) 70%),
+        radial-gradient(1400px 900px at 50% 60%, rgba(0,0,0,0.0), rgba(0,0,0,0.75) 80%);
+    }
+
+    /* --- Center text --- */
+    .center {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      z-index: 5;
+    }
+
+    .card {
+      padding: 24px 28px;
+      border-radius: 18px;
+      background: rgba(10, 10, 20, 0.25);
+      border: 1px solid rgba(255,255,255,0.08);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.45);
+    }
+
+    .date {
+      font-size: clamp(40px, 6vw, 72px);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      color: var(--text);
+      text-shadow: 0 12px 30px rgba(0,0,0,0.45);
+      margin: 0;
+      line-height: 1.05;
+    }
+
+    .mood {
+      margin: 10px 0 0;
+      font-size: clamp(22px, 2.6vw, 32px);
+      opacity: 0.85;
+      color: var(--text);
+      letter-spacing: 0.02em;
+    }
+
+    /* accessibility: reduce motion */
+    @media (prefers-reduced-motion: reduce) {
+      .blob, .bubble { animation: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg">
+    <!-- SVG filter for gooey merging -->
+    <svg width="0" height="0" aria-hidden="true" focusable="false">
+      <filter id="goo">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="18" result="blur" />
+        <feColorMatrix in="blur" mode="matrix"
+          values="
+            1 0 0 0 0
+            0 1 0 0 0
+            0 0 1 0 0
+            0 0 0 22 -10"
+          result="goo" />
+        <feComposite in="SourceGraphic" in2="goo" operator="atop" />
+      </filter>
+    </svg>
+
+    <div class="goo">
+      <div class="blob b1"></div>
+      <div class="blob b2"></div>
+      <div class="blob b3"></div>
+      <div class="blob b4"></div>
+
+      <div class="bubble c1"></div>
+      <div class="bubble c2"></div>
+      <div class="bubble c3"></div>
+    </div>
+  </div>
+
+  <div class="vignette"></div>
+
+  <main class="center">
+    <div class="card">
+      <p class="date">02/28/26</p>
+      <p class="mood">:/</p>
+    </div>
+  </main>
+</body>
+</html>
