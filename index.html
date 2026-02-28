@@ -3,184 +3,374 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Blob Background</title>
+  <title>კუტუ</title>
   <style>
-    :root {
-      --bg: #05050a;
-      --t1: #a855f7; /* purple */
-      --t2: #3b82f6; /* blue */
-      --t3: #ec4899; /* pink */
-      --text: #eaeaf2;
+    :root{
+      --bg:#05050a;
+
+      /* blob colors */
+      --p1:#a855f7;
+      --p2:#3b82f6;
+      --p3:#ec4899;
+
+      /* card */
+      --card: rgba(255,255,255,.10);
+      --card-stroke: rgba(255,255,255,.14);
+      --text: #f2f3ff;
+
+      /* slimes */
+      --sand:#f4d9a6;
+      --shadow: rgba(0,0,0,.08);
+      --eyeWhite:#ffffff;
+      --eyeStroke: rgba(0,0,0,.08);
+      --pupil:#24314a;
     }
 
-    * { box-sizing: border-box; }
-    html, body { height: 100%; }
-    body {
-      margin: 0;
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
       background: var(--bg);
-      overflow: hidden;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue";
+      overflow:hidden;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
     }
 
-    /* --- Background blobs --- */
-    .bg {
-      position: fixed;
-      inset: 0;
-      background: radial-gradient(1200px 700px at 50% 40%, rgba(255,255,255,0.03), transparent 60%);
+    /* ======= BACKGROUND BLOBS (no hard blur filter; just soft gradients) ======= */
+    .bg{
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      overflow:hidden;
+    }
+    .blobWrap{
+      position:absolute;
+      inset:-25%;
+      transform: translateZ(0);
+      will-change: transform;
+    }
+    .b{
+      position:absolute;
+      width: 520px;
+      height: 520px;
+      border-radius: 999px;
+      opacity:.9;
+      mix-blend-mode: screen;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,.22), rgba(255,255,255,0) 55%),
+        radial-gradient(circle at 70% 70%, rgba(255,255,255,.10), rgba(255,255,255,0) 60%),
+        linear-gradient(135deg, var(--c1), var(--c2));
+      animation: floaty 10s ease-in-out infinite;
+      will-change: transform;
+    }
+    .b1{ left: 18%; top: 22%; --c1: var(--p2); --c2: var(--p1); animation-duration: 11s; }
+    .b2{ left: 48%; top: 12%; width: 620px; height: 620px; --c1: var(--p1); --c2: var(--p2); animation-duration: 13s; }
+    .b3{ left: 74%; top: 38%; width: 480px; height: 480px; --c1: var(--p3); --c2: var(--p1); animation-duration: 12s; }
+    .b4{ left: 34%; top: 62%; width: 460px; height: 460px; --c1: var(--p2); --c2: var(--p1); animation-duration: 9.5s; opacity:.75; }
+
+    @keyframes floaty{
+      0%,100%{ transform: translate(0,0) scale(1) rotate(0deg); }
+      50%    { transform: translate(22px,-26px) scale(1.08) rotate(10deg); }
     }
 
-    /* container for goo effect */
-    .goo {
-      position: absolute;
-      inset: -20%;
-      filter: url(#goo) blur(10px);
+    .vignette{
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      background:
+        radial-gradient(900px 520px at 50% 38%, rgba(0,0,0,0), rgba(0,0,0,.55) 72%),
+        radial-gradient(1400px 900px at 50% 65%, rgba(0,0,0,0), rgba(0,0,0,.70) 85%);
+    }
+
+    /* ======= CENTER GLASS CARD ======= */
+    .center{
+      position:fixed;
+      inset:0;
+      display:grid;
+      place-items:center;
+      z-index:5;
+      pointer-events:none;
+    }
+    .card{
+      min-width: min(620px, calc(100vw - 56px));
+      padding: 34px 36px;
+      border-radius: 22px;
+      background: var(--card);
+      border: 1px solid var(--card-stroke);
+      box-shadow: 0 30px 80px rgba(0,0,0,.45);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      text-align:center;
+    }
+    .date{
+      margin:0;
+      font-size: clamp(44px, 7vw, 84px);
+      font-weight: 800;
+      letter-spacing: .03em;
+      color: var(--text);
+      text-shadow: 0 18px 50px rgba(0,0,0,.45);
+      line-height:1.05;
+    }
+    .mood{
+      margin: 12px 0 0;
+      font-size: clamp(20px, 3vw, 34px);
+      color: rgba(242,243,255,.85);
+      letter-spacing: .04em;
+    }
+
+    /* ======= SLIMES STAGE (bottom) ======= */
+    .stage{
+      position:fixed;
+      left:0; right:0;
+      bottom:0;
+      height: 42vh;
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+      gap: clamp(24px, 6vw, 80px);
+      padding: 0 24px 48px;
+      z-index:6;
+      pointer-events:none; /* visuals only */
+      /* sand background strip like your reference */
+      background: linear-gradient(to top, var(--sand) 0 78%, rgba(244,217,166,0) 100%);
+    }
+
+    .char{
+      pointer-events:none;
+      position:relative;
+      width: clamp(160px, 18vw, 230px);
+      height: clamp(140px, 16vw, 210px);
+      --tilt: 0deg;
+      --px: 0px;
+      --py: 0px;
       transform: translateZ(0);
     }
 
-    .blob {
-      position: absolute;
-      width: 320px;
-      height: 320px;
+    .body{
+      position:absolute;
+      inset:0;
+      border-radius: 70% 70% 55% 55% / 85% 85% 40% 40%;
+      background: var(--c);
+      box-shadow:
+        inset 0 10px 0 rgba(255,255,255,.22),
+        inset 0 -10px 0 rgba(0,0,0,.05);
+      transform-origin: 50% 85%;
+      transform: rotate(var(--tilt));
+    }
+
+    .mouth{
+      position:absolute;
+      left: 18%;
+      right: 18%;
+      bottom: 22%;
+      height: 20%;
+      border-radius: 22px;
+      background: rgba(0,0,0,.06);
+      transform: rotate(var(--tilt));
+      transform-origin: 50% 50%;
+    }
+    .mouth:before{
+      content:"";
+      position:absolute;
+      inset: 36% 18%;
       border-radius: 999px;
-      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.20), rgba(255,255,255,0) 55%),
-                  radial-gradient(circle at 60% 60%, rgba(255,255,255,0.08), rgba(255,255,255,0) 60%),
-                  linear-gradient(135deg, var(--t1), var(--t2));
-      opacity: 0.95;
-      mix-blend-mode: screen;
+      background: rgba(0,0,0,.10);
+    }
+
+    .cheek{
+      position:absolute;
+      width: 18%;
+      aspect-ratio: 1/1;
+      border-radius: 999px;
+      left: 42%;
+      bottom: 38%;
+      background: rgba(0,0,0,.06);
+      transform: rotate(var(--tilt));
+      display:none;
+    }
+
+    .shadow{
+      position:absolute;
+      left: 8%;
+      right: 8%;
+      bottom: -16%;
+      height: 22%;
+      background: radial-gradient(closest-side, var(--shadow), transparent 70%);
+      filter: blur(1px);
+      transform: scaleX(1.05);
+    }
+
+    .eyes{
+      position:absolute;
+      left: 18%;
+      right: 18%;
+      top: 22%;
+      height: 34%;
+      display:flex;
+      gap: 10%;
+      align-items:center;
+      justify-content:center;
+      transform: rotate(var(--tilt));
+      transform-origin: 50% 50%;
+    }
+
+    .eye{
+      width: 34%;
+      height: 80%;
+      background: var(--eyeWhite);
+      border-radius: 999px;
+      box-shadow: inset 0 0 0 2px var(--eyeStroke);
+      position:relative;
+      overflow:hidden;
+    }
+    .pupil{
+      position:absolute;
+      left:50%;
+      top:50%;
+      width: 34%;
+      height: 34%;
+      border-radius:999px;
+      background: var(--pupil);
+      transform: translate(-50%,-50%) translate(var(--px), var(--py));
       will-change: transform;
     }
 
-    .blob.b1 { left: 30%; top: 35%; transform: translate(-50%, -50%); animation: drift1 10s ease-in-out infinite; }
-    .blob.b2 { left: 52%; top: 38%; width: 380px; height: 380px; animation: drift2 12s ease-in-out infinite; }
-    .blob.b3 { left: 45%; top: 55%; width: 260px; height: 260px; background: linear-gradient(135deg, var(--t2), var(--t1)); animation: drift3 9s ease-in-out infinite; }
-    .blob.b4 { left: 62%; top: 52%; width: 220px; height: 220px; background: linear-gradient(135deg, var(--t1), var(--t3)); animation: drift4 11s ease-in-out infinite; opacity: 0.85; }
+    .char.small { width: clamp(150px, 16vw, 210px); height: clamp(130px, 14vw, 190px); }
+    .char.big   { width: clamp(190px, 22vw, 270px); height: clamp(170px, 20vw, 250px); }
 
-    /* little bubbles */
-    .bubble {
-      position: absolute;
-      width: 110px;
-      height: 110px;
-      border-radius: 999px;
-      background: linear-gradient(135deg, var(--t1), var(--t2));
-      opacity: 0.75;
-      mix-blend-mode: screen;
-      animation: floaty 7s ease-in-out infinite;
-    }
-    .bubble.c1 { left: 58%; top: 30%; width: 90px; height: 90px; animation-duration: 6.5s; }
-    .bubble.c2 { left: 38%; top: 58%; width: 70px; height: 70px; animation-duration: 7.8s; }
-    .bubble.c3 { left: 70%; top: 60%; width: 120px; height: 120px; animation-duration: 8.2s; }
+    .char.red   { --c:#ff8b92; }
+    .char.blue  { --c:#8fd1ff; }
+    .char.purp  { --c:#8c79ff; }
 
-    @keyframes drift1 {
-      0%,100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
-      50%     { transform: translate(-42%, -58%) scale(1.08) rotate(8deg); }
-    }
-    @keyframes drift2 {
-      0%,100% { transform: translate(-50%, -50%) scale(1.02) rotate(0deg); }
-      50%     { transform: translate(-58%, -40%) scale(1.10) rotate(-10deg); }
-    }
-    @keyframes drift3 {
-      0%,100% { transform: translate(-50%, -50%) scale(0.98) rotate(0deg); }
-      50%     { transform: translate(-44%, -44%) scale(1.10) rotate(14deg); }
-    }
-    @keyframes drift4 {
-      0%,100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
-      50%     { transform: translate(-60%, -56%) scale(1.12) rotate(-12deg); }
-    }
-    @keyframes floaty {
-      0%,100% { transform: translate(-50%, -50%) scale(1); }
-      50%     { transform: translate(-50%, -62%) scale(1.08); }
-    }
+    .char.red  .body { border-radius: 75% 65% 55% 55% / 85% 80% 45% 40%; }
+    .char.blue .body { border-radius: 65% 70% 55% 55% / 90% 90% 45% 45%; }
+    .char.purp .body { border-radius: 70% 75% 55% 55% / 88% 82% 45% 40%; }
+    .char.blue .cheek{ display:block; }
 
-    /* subtle vignette */
-    .vignette {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      background:
-        radial-gradient(900px 500px at 50% 45%, rgba(0,0,0,0.0), rgba(0,0,0,0.65) 70%),
-        radial-gradient(1400px 900px at 50% 60%, rgba(0,0,0,0.0), rgba(0,0,0,0.75) 80%);
-    }
-
-    /* --- Center text --- */
-    .center {
-      position: fixed;
-      inset: 0;
-      display: grid;
-      place-items: center;
-      text-align: center;
-      z-index: 5;
-    }
-
-    .card {
-      padding: 24px 28px;
-      border-radius: 18px;
-      background: rgba(10, 10, 20, 0.25);
-      border: 1px solid rgba(255,255,255,0.08);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      box-shadow: 0 20px 60px rgba(0,0,0,0.45);
-    }
-
-    .date {
-      font-size: clamp(40px, 6vw, 72px);
-      font-weight: 700;
-      letter-spacing: 0.02em;
-      color: var(--text);
-      text-shadow: 0 12px 30px rgba(0,0,0,0.45);
-      margin: 0;
-      line-height: 1.05;
-    }
-
-    .mood {
-      margin: 10px 0 0;
-      font-size: clamp(22px, 2.6vw, 32px);
-      opacity: 0.85;
-      color: var(--text);
-      letter-spacing: 0.02em;
-    }
-
-    /* accessibility: reduce motion */
-    @media (prefers-reduced-motion: reduce) {
-      .blob, .bubble { animation: none !important; }
+    @media (prefers-reduced-motion: reduce){
+      .b{ animation:none !important; }
+      .card{ backdrop-filter:none; -webkit-backdrop-filter:none; }
     }
   </style>
 </head>
 <body>
+
+  <!-- blobs background -->
   <div class="bg">
-    <!-- SVG filter for gooey merging -->
-    <svg width="0" height="0" aria-hidden="true" focusable="false">
-      <filter id="goo">
-        <feGaussianBlur in="SourceGraphic" stdDeviation="18" result="blur" />
-        <feColorMatrix in="blur" mode="matrix"
-          values="
-            1 0 0 0 0
-            0 1 0 0 0
-            0 0 1 0 0
-            0 0 0 22 -10"
-          result="goo" />
-        <feComposite in="SourceGraphic" in2="goo" operator="atop" />
-      </filter>
-    </svg>
-
-    <div class="goo">
-      <div class="blob b1"></div>
-      <div class="blob b2"></div>
-      <div class="blob b3"></div>
-      <div class="blob b4"></div>
-
-      <div class="bubble c1"></div>
-      <div class="bubble c2"></div>
-      <div class="bubble c3"></div>
+    <div class="blobWrap" id="blobWrap">
+      <div class="b b1"></div>
+      <div class="b b2"></div>
+      <div class="b b3"></div>
+      <div class="b b4"></div>
     </div>
   </div>
-
   <div class="vignette"></div>
 
-  <main class="center">
+  <!-- center glass card -->
+  <div class="center">
     <div class="card">
       <p class="date">02/28/26</p>
       <p class="mood">:/</p>
     </div>
-  </main>
+  </div>
+
+  <!-- slimes bottom -->
+  <div class="stage">
+    <div class="char red small" data-strength="10">
+      <div class="body"></div>
+      <div class="eyes">
+        <div class="eye"><div class="pupil"></div></div>
+        <div class="eye"><div class="pupil"></div></div>
+      </div>
+      <div class="mouth"></div>
+      <div class="shadow"></div>
+    </div>
+
+    <div class="char blue big" data-strength="12">
+      <div class="body"></div>
+      <div class="eyes">
+        <div class="eye"><div class="pupil"></div></div>
+        <div class="eye"><div class="pupil"></div></div>
+      </div>
+      <div class="cheek"></div>
+      <div class="mouth"></div>
+      <div class="shadow"></div>
+    </div>
+
+    <div class="char purp small" data-strength="10">
+      <div class="body"></div>
+      <div class="eyes">
+        <div class="eye"><div class="pupil"></div></div>
+        <div class="eye"><div class="pupil"></div></div>
+      </div>
+      <div class="mouth"></div>
+      <div class="shadow"></div>
+    </div>
+  </div>
+
+<script>
+  // ===== blob background mouse parallax =====
+  const blobWrap = document.getElementById("blobWrap");
+  let mx = window.innerWidth/2, my = window.innerHeight/2;
+  let bx = mx, by = my;
+
+  window.addEventListener("mousemove", (e)=>{ mx = e.clientX; my = e.clientY; }, {passive:true});
+
+  function rafBg(){
+    // smooth follow
+    bx += (mx - bx) * 0.03;
+    by += (my - by) * 0.03;
+
+    const dx = (bx - window.innerWidth/2) * 0.05;
+    const dy = (by - window.innerHeight/2) * 0.05;
+    blobWrap.style.transform = `translate(${dx}px, ${dy}px)`;
+    requestAnimationFrame(rafBg);
+  }
+  rafBg();
+
+  // ===== slimes: eyes follow cursor + body tilt =====
+  const chars = [...document.querySelectorAll(".char")];
+  const state = new Map(chars.map(el => [el, {px:0, py:0, tilt:0}]));
+
+  function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
+
+  function tick(){
+    for(const el of chars){
+      const rect = el.getBoundingClientRect();
+      const cx = rect.left + rect.width/2;
+      const cy = rect.top  + rect.height*0.42;
+
+      const dx = mx - cx;
+      const dy = my - cy;
+      const angle = Math.atan2(dy, dx);
+      const dist  = Math.hypot(dx, dy);
+
+      const max = 9; // pupil px range
+      const targetPX = clamp(Math.cos(angle) * max, -max, max);
+      const targetPY = clamp(Math.sin(angle) * max, -max, max);
+
+      const strength = Number(el.dataset.strength || 10);
+      const tiltMax = strength; // degrees
+      const proximity = clamp(1 - dist / 700, 0, 1);
+      const targetTilt = clamp((Math.cos(angle) * tiltMax) * proximity, -tiltMax, tiltMax);
+
+      const s = state.get(el);
+      s.px += (targetPX - s.px) * 0.12;
+      s.py += (targetPY - s.py) * 0.12;
+      s.tilt += (targetTilt - s.tilt) * 0.10;
+
+      el.style.setProperty("--px", s.px.toFixed(2) + "px");
+      el.style.setProperty("--py", s.py.toFixed(2) + "px");
+      el.style.setProperty("--tilt", s.tilt.toFixed(2) + "deg");
+    }
+    requestAnimationFrame(tick);
+  }
+  tick();
+
+  window.addEventListener("resize", ()=>{
+    mx = window.innerWidth/2; my = window.innerHeight/2;
+    bx = mx; by = my;
+  });
+</script>
+
 </body>
 </html>
