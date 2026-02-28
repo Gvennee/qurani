@@ -33,6 +33,7 @@
       background: var(--bg);
       overflow:hidden;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+ 	touch-action: none;
     }
 
     /* ======= BACKGROUND BLOBS (no hard blur filter; just soft gradients) ======= */
@@ -306,28 +307,51 @@
       <div class="shadow"></div>
     </div>
   </div>
-
 <script>
-  // ===== blob background mouse parallax =====
-  const blobWrap = document.getElementById("blobWrap");
+  // ===== shared pointer coords (mouse + touch) =====
   let mx = window.innerWidth/2, my = window.innerHeight/2;
+
+  function setPointer(x, y){
+    mx = x; my = y;
+  }
+
+  // mouse
+  window.addEventListener("mousemove", (e)=>{
+    setPointer(e.clientX, e.clientY);
+  }, { passive:true });
+
+  // touch (phone)
+  window.addEventListener("touchstart", (e)=>{
+    const t = e.touches[0];
+    if(!t) return;
+    setPointer(t.clientX, t.clientY);
+  }, { passive:true });
+
+  window.addEventListener("touchmove", (e)=>{
+    const t = e.touches[0];
+    if(!t) return;
+    setPointer(t.clientX, t.clientY);
+  }, { passive:true });
+
+  // ===== blob background parallax =====
+  const blobWrap = document.getElementById("blobWrap");
   let bx = mx, by = my;
 
-  window.addEventListener("mousemove", (e)=>{ mx = e.clientX; my = e.clientY; }, {passive:true});
-
   function rafBg(){
-    // smooth follow
     bx += (mx - bx) * 0.03;
     by += (my - by) * 0.03;
 
     const dx = (bx - window.innerWidth/2) * 0.05;
     const dy = (by - window.innerHeight/2) * 0.05;
-    blobWrap.style.transform = `translate(${dx}px, ${dy}px)`;
+
+    if(blobWrap){
+      blobWrap.style.transform = `translate(${dx}px, ${dy}px)`;
+    }
     requestAnimationFrame(rafBg);
   }
   rafBg();
 
-  // ===== slimes: eyes follow cursor + body tilt =====
+  // ===== slimes: eyes follow pointer + body tilt =====
   const chars = [...document.querySelectorAll(".char")];
   const state = new Map(chars.map(el => [el, {px:0, py:0, tilt:0}]));
 
@@ -367,7 +391,7 @@
   tick();
 
   window.addEventListener("resize", ()=>{
-    mx = window.innerWidth/2; my = window.innerHeight/2;
+    setPointer(window.innerWidth/2, window.innerHeight/2);
     bx = mx; by = my;
   });
 </script>
